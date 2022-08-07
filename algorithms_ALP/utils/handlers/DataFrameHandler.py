@@ -1,5 +1,6 @@
 import pandas as pd
 import os
+import time
 
 
 class DataFrameHandler:
@@ -15,17 +16,23 @@ class DataFrameHandler:
             raise BaseException(f'Failed to read data\n {str(ex)}')
 
     @staticmethod
-    def save_df_to_csv(data_frame, file_path):
+    def dict_to_df(data_dict, orient='index'):
+        return pd.DataFrame.from_dict(data_dict, orient=orient)
 
-        path = 'tmp/'
+    @staticmethod
+    def save_df_to_csv(data_frame, file_name, file_path=None):
 
-        try:
-            os.mkdir(path)
-        except:
-            pass
+        if file_path is None:
+            file_path = os.getcwd() + '/tmp/'
+            try:
+                os.mkdir(file_path)
+            except:
+                pass
 
-        if data_frame and not data_frame.empty:
-            data_frame.to_csv(file_path)
+            file_path = os.path.join(file_path, f'{file_name}_{time.time_ns()}.csv')
+
+        if data_frame.empty is False:
+            data_frame.to_csv(file_path, sep=';')
             return True
 
         return False

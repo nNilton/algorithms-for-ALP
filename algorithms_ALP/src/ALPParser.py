@@ -1,5 +1,6 @@
 from algorithms_ALP.utils.parsers.AbstractParser.AbstractParser import AbstractParser
 import re
+import json
 
 
 class ALPParser(AbstractParser):
@@ -19,8 +20,6 @@ class ALPParser(AbstractParser):
                 data = self.get_data_from_all_planes(content_str)
                 if data:
                     return True, data
-                    # procced...
-                    pass
                 else:
                     return False, ['Failed to get data from files']
             else:
@@ -52,25 +51,23 @@ class ALPParser(AbstractParser):
         :return: dict
         """
         content_split = content_str.split('\n')[1:]
-        planes = []
+        planes = {}
+        plane_counter = 0
         for row_content in content_split:
 
             times = self.get_time_sequence(row_content)
 
             if len(times) == 6:
-                plane_dict = {
-                    'times': {
-                        'appearance_time': times[0].strip(),
-                        'earliest_landing_time': times[1].strip(),
-                        'target_landing_time': times[2].strip(),
-                        'latest_landing_time': times[3].strip(),
-                        'penality_cost_earliest': times[4].strip(),
-                        'penality_cost_latest': times[5].strip()
-                    },
+                planes[str(plane_counter)] = {
+                    'appearance_time': times[0].strip(),
+                    'earliest_landing_time': times[1].strip(),
+                    'target_landing_time': times[2].strip(),
+                    'latest_landing_time': times[3].strip(),
+                    'penality_cost_earliest': times[4].strip(),
+                    'penality_cost_latest': times[5].strip(),
                     'separation_times': self.get_separation_time_from_plane(content_str.split(row_content)[1:][0])
                 }
-
-                planes.append(plane_dict)
+                plane_counter +=1
 
         return planes
 
