@@ -1,6 +1,5 @@
-from algorithms_ALP.utils.parsers.AbstractParser.AbstractParser import AbstractParser
+from algorithms_ALP.src.utils import AbstractParser
 import re
-import json
 
 
 class ALPParser(AbstractParser):
