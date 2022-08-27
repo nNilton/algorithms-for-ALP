@@ -1,4 +1,5 @@
-from algorithms_ALP.src.utils import AbstractParser
+from algorithms_ALP.src.utils.parsers.AbstractParser.AbstractParser import AbstractParser
+
 import re
 
 

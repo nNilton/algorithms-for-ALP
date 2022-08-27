@@ -1,4 +1,5 @@
 import random
+import numpy as np
 
 from algorithms_ALP.src.algorithms.ACO.data_structure.EdgeALP import EdgeALP
 
@@ -32,10 +33,34 @@ class GraphALP:
         cost += self.get_edge_cost(path[-1], path[0])
         return cost
 
-    def generate_graph(self, cost_matrix=None):
-        for i in range(1, self.num_vertices + 1):
-            for j in range(1, self.num_vertices + 1):
+    def generate_full_graph(self, cost_matrix=None, random_cost = False):
+        for i in range(0, self.num_vertices):
+            for j in range(0, self.num_vertices):
                 if i != j:
-                    cost = random.randint(1, 10)
-                    # cost = cost_matrix[i][j]
+                    if random_cost:
+                        cost = random.randint(1, 10)
+                    else:
+                        cost = cost_matrix[i][j]
                     self.add_edge(i, j, cost)
+
+    def generate_aircraft_graph(self, runaways, aircrafts, cost_matrix = None):
+        """
+        Generate a graph for Aircraft Landing Problem.
+        :param runaways: amount of runaways
+        :param aircrafts: amount of available aircraft
+        :param cost_matrix:
+        :return: None
+        """
+
+        for runaway in range(runaways):
+            # Add initial dummy node
+            runaway_name = f'R{runaway}'
+            self.add_edge('D', runaway_name, 0)
+            for aircraft in range(aircrafts):
+                aircraft_name =  f'A{aircraft}'
+                self.add_edge(runaway_name, aircraft_name, -1)
+                # Add finish dummy node
+                self.add_edge(f'A{aircraft}', 'F', 0)
+
+        #connect dummy nodes
+        self.add_edge('D', 'F', 0)
