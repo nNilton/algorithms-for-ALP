@@ -5,19 +5,19 @@ class AntALP:
     Defines an Ant for Aircraft Landing Problem.
     """
 
-    def __init__(self, runaway):
+    def __init__(self, node):
         """
-        :param runaway:
+        :param node:
         """
-        self.runaway = runaway
+        self.node = node
         self.solution = []
         self.cost = None
 
-    def get_runaway(self):
-        return self.runaway
+    def get_node(self):
+        return self.node
 
-    def set_runaway(self, runaway):
-        self.runaway = runaway
+    def set_node(self, node):
+        self.node = node
 
     def get_solution(self):
         return self.solution

@@ -8,9 +8,9 @@ class DataFrameHandler:
         pass
 
     @staticmethod
-    def read_csv_data(file_path, usecols=[]):
+    def read_csv_data(file_path, usecols=None, sep=';'):
         try:
-            data = pd.read_csv(file_path, sep=',', skipinitialspace=True, usecols=usecols)
+            data = pd.read_csv(file_path, sep=sep, skipinitialspace=True, usecols=usecols)
             return data
         except Exception as ex:
             raise BaseException(f'Failed to read data\n {str(ex)}')
