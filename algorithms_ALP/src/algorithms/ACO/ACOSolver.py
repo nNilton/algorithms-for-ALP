@@ -22,7 +22,7 @@
 
 from algorithms_ALP.src.algorithms.ACO.ALPInstance import ALPInstance
 from algorithms_ALP.src.algorithms.ACO.entity.Ant import Ant
-from algorithms_ALP.src.algorithms.ACO.entity.Aircraft import Plane
+from algorithms_ALP.src.algorithms.ACO.entity.Aircraft import Aircraft
 from algorithms_ALP.src.algorithms.ACO.entity.Runaway import Runaway
 from algorithms_ALP.src.utils.math.MathUtils import MathUtils
 
@@ -79,13 +79,14 @@ class ACOSolver:
             ]
             # Create global aircraft candidate list with index
             self.global_aircraft_candidates = [
-                Plane(int(index_plane), airplane_data) for index_plane, airplane_data in
+                Aircraft(int(index_plane), airplane_data) for index_plane, airplane_data in
                 alp_instance.aircraft_times.items()
             ]
 
             # Start colony with initial data (there are not any solution)
             self.colony = [
-                Ant(ant_id = ant_id, plane_candidates_list=self.global_aircraft_candidates, runaways_list=self.global_runaway_list)
+                Ant(ant_id=ant_id, plane_candidates_list=self.global_aircraft_candidates,
+                    runaways_list=self.global_runaway_list)
                 for ant_id in range(self.number_of_ants)
             ]
 
@@ -108,9 +109,13 @@ class ACOSolver:
             iter_start = datetime.now()
             print(f"Starting iteration {int(iteration + 1)} / {max_iterations} expected")
             for ant in self.colony:
-                runaway_selected = self.select_runaway(ant)
-                self.select_aircraft(ant, runaway_selected)
-                pass
+                while len(ant.aircraft_candidates_list) > 0:
+                    selected_runaway = self.select_runaway(ant)
+                    selected_aircraft = self.select_aircraft(ant, selected_runaway)
+                    landing_time = self.assign_landing_time_to_aircraft(ant, selected_runaway, selected_aircraft)
+                    # Insert the aircraft j in the list of aircraft affected to the runway r and delete it from the candidate list
+                # Return to the beginning of the graph
+            self.update_pheromone_trail()
 
             iter_finish = datetime.now()
             print(f"Finish iteration [{int(iteration)}]: Elapsed {iter_finish - iter_start} seconds")
@@ -171,7 +176,7 @@ class ACOSolver:
                 if len(runaway.solution_list) > 0:
                     last_plane = runaway.solution_list[-1]  # last aircraft affected to the runway r for the ant
                     last_time_plus_sep_time_list = []
-                    for candidate_index in ant.plane_candidates_list:
+                    for candidate_index in ant.aircraft_candidates_list:
                         # Separation time between the landings of aircraft i and j if they land on the same runaway
                         separation_time = self.separation_times_matrix[last_plane.index][candidate_index]
                         last_time_plus_sep_time_list.append(last_plane.landing_time + separation_time)
@@ -184,7 +189,11 @@ class ACOSolver:
 
         return r0
 
-    def select_aircraft(self, ant: Ant, runaway_selected: Runaway):
+    def select_aircraft(self, ant: Ant, selected_runaway: Runaway):
+        print(f"Ant with id {ant.ant_id} selected runaway {selected_runaway.runaway_name}")
+        pass
+
+    def evaluate_selected_aircraft(self, ant: Ant, runaway_selected: Runaway):
         """
         After choosing a runway r, the ant has to select an aircraft to land on this runway.
         :param ant:
@@ -192,11 +201,70 @@ class ACOSolver:
         :return: Aircraft
         """
         print(f"Ant with id {ant.ant_id} selected runaway {runaway_selected.runaway_name}")
+        # for aircraft in ant.aircraft_candidates_list:
+        #
+        #     priority = self.select_priority_rule(aircraft_index=aircraft.index, sel=1)
+        #     penality_cost = self.calculate_penality_cost(aircraft)
+        return 1
+
+    def assign_landing_time_to_aircraft(self, ant: Ant, selected_runaway: Runaway, selected_aircraft: Aircraft):
+        """
+        This step is to assign landing times to aircraft while respecting the two constraints:
+            − The landing time must be within the landing widow [ei, li]
+            − The interval of security must be respected
+        :param ant: current Ant
+        :param selected_runaway:
+        :param selected_aircraft:
+        :return:
+        """
+        runaway_solutions = ant.runaways_list[selected_runaway.index]
+        aircraft_times = [selected_aircraft.target_landing_time]
+        aux_aicraft_times = []
+        for landed_air in runaway_solutions.solution_list: # return Runaway list
+            landed_aircraft: Aircraft = landed_air
+
+            separation_time = self.separation_times_matrix[landed_aircraft.index][selected_aircraft.index]
+            aux_aicraft_times.append(landed_aircraft.earliest_landing_time + separation_time)
+        aircraft_times.append(max(aux_aicraft_times))
+
+        return max(aircraft_times)
+
+    def update_pheromone_trail(self):
+        """
+        The pheromone trail must be updated at the end of each iteration.
+        :return:
+        """
         pass
 
+    def increase_pheromone_trail(self):
+        pass
 
-# Aeronaves candidatas globais
-planes_to_landing = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    def decrease_pheromone_trail(self):
+        pass
+
+    def get_aircraft_priority(self, aircraft_index, sel=1):
+        aircraft: Aircraft = self.global_aircraft_candidates[aircraft_index]
+
+        if sel == 1:
+            return aircraft.appearance_time
+        elif sel == 2:
+            return aircraft.earliest_landing_time
+        elif sel == 3:
+            return aircraft.target_landing_time
+        else:
+            return aircraft.latest_landing_time
+
+    def calculate_penality_cost(self, aircraft_selected: Aircraft):
+        """
+        This cost is calculated after we assign a landing time to the aircraft
+        :param aircraft_selected:
+        :return: float
+        """
+        priority = self.get_aircraft_priority(aircraft_selected.index, sel=1)
+        cost_penality = None
+        return (1 / (priority + 1))**self.beta1 * \
+               (1 / (cost_penality + 1))**self.beta2 # avoid division by zero
+
 
 # Cada formiga cria sua lista de aeronaves candidatas
 
@@ -210,16 +278,6 @@ planes_to_landing = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 # Para cada formiga, com sua lista de aeronaves escolhidas, fazemos:
 # fixar os tempos de aterrisagem desta aeronaves
 # remover definitivamente da lista global de aeronaves candidatas
-
-
-# Representacao da formiga: formiga representa uma solução para o problema
-"""
-Example of an Ant (runaway list)
-runaway_name    airplane_index:landing_time
-Runway 1        1:125 5:201 4:56 –
-Runway 2        2:108 3:184 6:300 8:655
-Runway 3        7:54 10:407 9:520 –
-"""
 
 # Inicialização do problema
 # Criar lista de aeronaves candidatas para cada formiga

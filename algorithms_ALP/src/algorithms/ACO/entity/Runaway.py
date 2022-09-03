@@ -34,11 +34,7 @@ class Runaway:
         """
         :param index: Index of Runaway
         :param runaway_name: Just an alias for the Runaway
-        :param solution_list: Each item of list it is described by the following dict
-            {
-            'airplane_index': index,
-            'landing_time': index
-            }
+        :param solution_list: List of selected Aircraft (with landing time assigned)
         """
         self.index = index
         self.runaway_name = runaway_name

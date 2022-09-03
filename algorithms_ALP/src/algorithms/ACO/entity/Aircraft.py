@@ -23,7 +23,7 @@
 #  """
 
 
-class Plane:
+class Aircraft:
 
     def __init__(self, index, data):
         """

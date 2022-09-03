@@ -28,7 +28,7 @@ class Ant:
         Represents an Ant applied to ALP.
     """
 
-    def __init__(self, ant_id, plane_candidates_list, runaways_list):
+    def __init__(self, ant_id, aircraft_candidates_list, runaways_list):
         """
         :param plane_candidates_list: A candidate list according to the ant constructs its solution
         :param runaways_list: lists representing each a runway: it contains both the
@@ -36,7 +36,7 @@ class Ant:
         :param penality_cost: Penalty cost of the solution represented
         """
         self.ant_id = ant_id
-        self.plane_candidates_list = plane_candidates_list
+        self.aircraft_candidates_list = aircraft_candidates_list
         self.runaways_list = runaways_list # also called as solution_list
         self.penality_cost = None
 
