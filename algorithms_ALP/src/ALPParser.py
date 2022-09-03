@@ -1,3 +1,5 @@
+from algorithms_ALP.src.utils.handlers.DataFrameHandler import DataFrameHandler
+from algorithms_ALP.src.utils.handlers.FileHandler import FileHandler
 from algorithms_ALP.src.utils.parsers.AbstractParser.AbstractParser import AbstractParser
 
 import re
@@ -10,8 +12,13 @@ class ALPParser(AbstractParser):
         self.planes_number = None
         self.freeze_time = None
 
-    def parse_content(self):
-        pass
+    def parse_content(self, file_path):
+        content = FileHandler.read_file(file_path, read_mode='r')
+        alp_parser = ALPParser()
+        status, parsed_content = alp_parser.parser(content)
+        if status:
+            df = DataFrameHandler.dict_to_df(parsed_content)
+            DataFrameHandler.save_df_to_csv(df, 'airland')
 
     def parser(self, content_str):
         try:

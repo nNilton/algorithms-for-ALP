@@ -1,8 +1,10 @@
+from decimal import Decimal
+
 import numpy as np
 import matplotlib.pyplot as plt
 import time
 
-from algorithms_ALP.src.algorithms.ACO.data_structure.AntALP import AntALP
+from algorithms_ALP.src.algorithms.ACO.entity.AntALP import AntALP
 
 
 class AntColonySolverALP:
@@ -55,7 +57,7 @@ class AntColonySolverALP:
         self.create_colony()
         self.map = map_matrix
         assert self.map.shape[0] == self.map.shape[1], "Map is not a distance matrix!"
-        num_nodes = self.map.shape[0]
+        num_nodes = self.map.shape[0] + runaway_amount + 2 #nodes D and F
         self.pheromone_matrix = np.ones((num_nodes, num_nodes))
         # Remove the diagonal since there is no pheromone from node i to itself
         self.pheromone_matrix[np.eye(num_nodes) == 1] = 0
@@ -113,9 +115,7 @@ class AntColonySolverALP:
             if len(candidates_list) > 0 or brute_stop:
                 for ant in self.colony:  # step 2
                     self.runaway_selection(ant)
-
                     sel_aircraft = self.aircraft_selection(ant)
-
                     affected_list.append(sel_aircraft)
                     candidates_list.remove(sel_aircraft)
                     self.assign_landing_time()
@@ -179,8 +179,38 @@ class AntColonySolverALP:
         self.runaway_probability()
         pass
 
-    def runaway_probability(self, ant, candidates_list):
+    def runaway_probability(self, ant: AntALP, candidates_list, earliest_plane, separation_times):
+        """
+        Calculate probability of Ant K choose the runaway R.
+        :param ant:
+        :param candidates_list:
+        :return:
+        """
+
+        earliest_plane_time = Decimal(earliest_plane['landing_time'])
+        earliest_plane_index = earliest_plane['index']
+        j = 0
+
+        separation_time = separation_times[earliest_plane_index][j]
+        np.argmin(earliest_plane_time + separation_time)
+
+        q = np.random.random(0, 1) # is a value taken randomly into [0,1]
+        q0 = 1 # is a constant of the algorithm to ensure the diversification
+        r0 = 0 # is an index chosen randomly in {1, …, R}
+
         np.argmin()
+        self.run
+
+        if q < q0:
+            #calcular probabilidade
+            self.prob_runaway_matrix = None
+            pass
+
+        return r0 #otherwise
+
+        probability = None
+
+
         pass
 
     def aircraft_selection(self):

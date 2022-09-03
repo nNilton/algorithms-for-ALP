@@ -1,3 +1,4 @@
+#  """
 #  MIT License
 #
 #  Copyright (c) 2022 Matheus Phelipe Alves Pinto
@@ -19,18 +20,27 @@
 #  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #  SOFTWARE.
+#  """
 
-from abc import ABC, abstractmethod
+class Runaway:
+    """
+    Example of an Runaway (used by runaway list)
+    runaway_name    airplane_index:landing_time
+    Runway 1        1:125 5:201 4:56 –
+    Runway 2        2:108 3:184 6:300 8:655
+    Runway 3        7:54 10:407 9:520 –
+    """
+    def __init__(self, index, runaway_name, solution_list=[]):
+        """
+        :param index: Index of Runaway
+        :param runaway_name: Just an alias for the Runaway
+        :param solution_list: Each item of list it is described by the following dict
+            {
+            'airplane_index': index,
+            'landing_time': index
+            }
+        """
+        self.index = index
+        self.runaway_name = runaway_name
+        self.solution_list = solution_list
 
-
-class AbstractParser(ABC):
-    def __init__(self) -> None:
-        pass
-
-    @abstractmethod
-    def parse_content(self):
-        pass
-
-    @abstractmethod
-    def parser(self):
-        pass

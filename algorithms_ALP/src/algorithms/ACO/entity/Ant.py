@@ -1,3 +1,4 @@
+#  """
 #  MIT License
 #
 #  Copyright (c) 2022 Matheus Phelipe Alves Pinto
@@ -19,18 +20,30 @@
 #  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #  SOFTWARE.
+#  """
 
-from abc import ABC, abstractmethod
 
+class Ant:
+    """
+        Represents an Ant applied to ALP.
+    """
 
-class AbstractParser(ABC):
-    def __init__(self) -> None:
-        pass
+    def __init__(self, ant_id, plane_candidates_list, runaways_list):
+        """
+        :param plane_candidates_list: A candidate list according to the ant constructs its solution
+        :param runaways_list: lists representing each a runway: it contains both the
+            indexes of aircrafts affected to and their landing times
+        :param penality_cost: Penalty cost of the solution represented
+        """
+        self.ant_id = ant_id
+        self.plane_candidates_list = plane_candidates_list
+        self.runaways_list = runaways_list # also called as solution_list
+        self.penality_cost = None
 
-    @abstractmethod
-    def parse_content(self):
-        pass
-
-    @abstractmethod
-    def parser(self):
-        pass
+    """
+    Example of an Ant (runaway list)
+    runaway_name    airplane_index:landing_time
+    Runway 1        1:125 5:201 4:56 –
+    Runway 2        2:108 3:184 6:300 8:655
+    Runway 3        7:54 10:407 9:520 –
+    """

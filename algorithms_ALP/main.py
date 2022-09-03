@@ -1,24 +1,22 @@
 from algorithms_ALP.src.ALPParser import ALPParser
-from algorithms_ALP.src.algorithms.ACO.AntColonySolverALP import AntColonySolverALP
+from algorithms_ALP.src.algorithms.ACO.ACOSolver import ACOSolver
 from algorithms_ALP.src.algorithms.ACO.ALPInstance import ALPInstance
 from algorithms_ALP.src.utils.handlers.DataFrameHandler import DataFrameHandler
+from algorithms_ALP.src.utils.handlers.FileHandler import FileHandler
 
 if __name__ == '__main__':
-    df = DataFrameHandler.read_csv_data('C:\\Users\\mathe\\Desktop\\workspace\\algorithms-aircraft-landing-problems\\algorithms_ALP\\tmp\\airland_1659880658268691500.csv')
+    df = DataFrameHandler.read_csv_data('C:\\Users\\mathe\\Desktop\\workspace\\algorithms-aircraft-landing-problems\\algorithms_ALP\\tmp\\airland_1662239820256920500.csv')
     alp = ALPInstance(df)
     alp.build_ALP_instance()
 
-    aco_solver = AntColonySolverALP(runaway_number=3, number_of_ants=15, evaporation_rate=1, pheromony_intensity=1,
-                 beta_evaporation_rate=.1, alpha=1, beta1=1, beta2=1)
-    aco_solver.start_solver(map_matrix=alp.separation_times_matrix)
-
+    aco_solver = ACOSolver(
+        runaway_number = 2,
+        number_of_ants = 2,
+        evaporation_rate = 1,
+        pheromone_intensity = 1,
+        beta_evaporation_rate = 1)
+    aco_solver.start(alp_intance=alp)
     x = 0
 
-
-
-    # content = FileHandler.read_file('D:\\testing\\airland13.txt', read_mode='r')
     # alp_parser = ALPParser()
-    # status, parsed_content = alp_parser.parser(content)
-    # if status:
-    #     df = DataFrameHandler.dict_to_df(parsed_content)
-    #     DataFrameHandler.save_df_to_csv(df, 'airland')
+    # alp_parser.parse_content('D:\\testing\\airland1.txt')

@@ -1,3 +1,4 @@
+#  """
 #  MIT License
 #
 #  Copyright (c) 2022 Matheus Phelipe Alves Pinto
@@ -19,18 +20,26 @@
 #  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #  SOFTWARE.
+#  """
 
-from abc import ABC, abstractmethod
 
+class Plane:
 
-class AbstractParser(ABC):
-    def __init__(self) -> None:
-        pass
+    def __init__(self, index, data):
+        """
+        :param appearance_time:
+        :param earliest_landing_time:
+        :param target_landing_time:
+        :param latest_landing_time:
+        :param penality_cost_earliest:
+        :param penality_cost_latest:
+        """
+        self.index = index
+        self.appearance_time = data['appearance_time']
+        self.earliest_landing_time = data['earliest_landing_time']
+        self.target_landing_time = data['target_landing_time']
+        self.latest_landing_time = data['latest_landing_time']
+        self.penality_cost_earliest = data['penality_cost_earliest']
+        self.penality_cost_latest = data['penality_cost_latest']
+        self.landing_time = None
 
-    @abstractmethod
-    def parse_content(self):
-        pass
-
-    @abstractmethod
-    def parser(self):
-        pass
