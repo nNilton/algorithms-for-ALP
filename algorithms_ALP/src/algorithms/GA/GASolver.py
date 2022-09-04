@@ -42,6 +42,7 @@ class GASolver:
 
         # Internal parameters
         self.global_aircraft_candidates = []
+        self.fitness = []
         # self.global_runaway_list = []
 
     def __initialize(self, alp_instance: ALPInstance = None):
@@ -70,23 +71,21 @@ class GASolver:
         print(random_numbers)
         return random_numbers
 
-    def evaluate_fitness(self, population):
-        scheduled_time = 0
+    def evaluate_fitness(self, individual,population):
         fitness = 0
-        for i in range (0,self.total_aircrafts):
+        for i in range (individual,self.total_aircrafts):
             earliest_landing_time = self.global_aircraft_candidates[i].earliest_landing_time
             latest_landing_time = self.global_aircraft_candidates[i].latest_landing_time
-            scheduled_time = (earliest_landing_time + (population[0,i] * (latest_landing_time - earliest_landing_time)))
+            scheduled_time = (earliest_landing_time + (population[individual,i] * (latest_landing_time - earliest_landing_time)))
             deviation = scheduled_time - self.global_aircraft_candidates[i].target_landing_time
             if(deviation > 0):
                 fitness += deviation * deviation
             else:
                 fitness -= deviation * deviation
-        return fitness
+        self.fitness[individual] = fitness
 
     def start(self, alp_intance: ALPInstance, max_iterations=10):
         self.__initialize(alp_intance)
         print(self.global_aircraft_candidates)
         test = self.generate_initial_population()
-        fitness =self.evaluate_fitness(test)
-        print(fitness)
+        self.evaluate_fitness(test)
