@@ -23,9 +23,9 @@
 import random
 import numpy
 
-from algorithms_ALP.src.utils.handlers.DataFrameHandler import DataFrameHandler
 from algorithms_ALP.src.algorithms.ACO.ALPInstance import ALPInstance
 from algorithms_ALP.src.algorithms.ACO.entity.Aircraft import Aircraft
+from algorithms_ALP.src.algorithms.GA.model.Individual import Individual
 
 class GASolver:
 
@@ -42,7 +42,7 @@ class GASolver:
 
         # Internal parameters
         self.global_aircraft_candidates = []
-        self.fitness = [-1] * total_population
+        self.individuals = []
         # self.global_runaway_list = []
 
     def __initialize(self, alp_instance: ALPInstance = None):
@@ -67,36 +67,38 @@ class GASolver:
             raise ex
 
     def generate_initial_population(self):
-        random_numbers = numpy.random.uniform(low=0, high=1, size=(self.total_population, self.total_aircrafts))
-        print(random_numbers)
-        return random_numbers
+        for i in range(self.total_population):
+            random_numbers = numpy.random.uniform(low=0, high=1, size=self.total_aircrafts)
+            print(random_numbers)
+            self.individuals.append(Individual(i, random_numbers, -1, -1))
+            self.evaluate_fitness(i)
+            self.evaluate_unfitness(i)
 
-    def evaluate_fitness(self, population, position):
+
+    def evaluate_fitness(self, index):
         fitness = 0
         for i in range (0,self.total_aircrafts):
             earliest_landing_time = self.global_aircraft_candidates[i].earliest_landing_time
             latest_landing_time = self.global_aircraft_candidates[i].latest_landing_time
-            scheduled_time = (earliest_landing_time + (population[position,i] * (latest_landing_time - earliest_landing_time)))
+            scheduled_time = (earliest_landing_time + (self.individuals[index].genes[i] * (latest_landing_time - earliest_landing_time)))
             deviation = scheduled_time - self.global_aircraft_candidates[i].target_landing_time
             if(deviation > 0):
                 fitness += deviation * deviation
             else:
                 fitness -= deviation * deviation
-        self.fitness[position] = fitness
+        self.individuals[index].fitness = fitness
 
-    def binary_tournment(self, population):
+    def binary_tournment(self):
         rand1 = random.randrange(self.total_population)
         rand2 = random.randrange(self.total_population)#this can return the same element twice fix this if it was necessary
-        if(self.fitness[rand1]>self.fitness[rand2]):
-            return population[rand1]
+        if(self.individuals[rand1].fitness>self.individuals[rand2].fitness):
+            return self.individuals[rand1].genes
         else:
-            return population[rand2]
+            return self.individuals[rand2].genes
 
-    def crossover(self, population):
-        parent1 = self.binary_tournment(population)
-        parent2 = self.binary_tournment(population)
-        print(parent1)
-        print(parent2)
+    def crossover(self):
+        parent1 = self.binary_tournment()
+        parent2 = self.binary_tournment()
         child = []
         for i in range(0, self.total_aircrafts):
             if(random.randrange(2)==0):
@@ -104,10 +106,34 @@ class GASolver:
             else:
                 child.append(parent2[i])
         return child
+
+    def evaluate_unfitness(self, index):
+        unfitness = 0
+        for i in range(0, self.total_aircrafts):
+            for j in range(0, self.total_aircrafts):
+                if(i != j):
+                    earliest_landing_time = self.global_aircraft_candidates[i].earliest_landing_time
+                    latest_landing_time = self.global_aircraft_candidates[i].latest_landing_time
+                    scheduled_time_i = (earliest_landing_time + (self.individuals[index].genes[i] * (latest_landing_time - earliest_landing_time)))
+
+                    earliest_landing_time = self.global_aircraft_candidates[j].earliest_landing_time
+                    latest_landing_time = self.global_aircraft_candidates[j].latest_landing_time
+                    scheduled_time_j = (earliest_landing_time + (self.individuals[index].genes[j] * (latest_landing_time - earliest_landing_time)))
+
+                    if(scheduled_time_i <= scheduled_time_j):
+                        delta = scheduled_time_j - scheduled_time_i
+                        unfitness += max(0, self.separation_times_matrix[i,j] - delta)
+        self.individuals[index].unfitness = unfitness
+
+    def list(self):
+        for i in self.individuals:
+            print(i.index)
+            print(i.genes)
+            print(i.fitness)
+            print(i.unfitness)
+
     def start(self, alp_instance: ALPInstance, max_iterations=10):
         self.__initialize(alp_instance)
-        print(self.global_aircraft_candidates)
-        test = self.generate_initial_population()
-        self.evaluate_fitness(test, 0)
-        child = self.crossover(test)
-        print(alp_instance.separation_times_matrix[2])
+        self.generate_initial_population()
+        self.crossover()
+        #self.list()
