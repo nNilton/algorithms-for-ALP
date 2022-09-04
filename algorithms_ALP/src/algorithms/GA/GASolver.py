@@ -105,7 +105,7 @@ class GASolver:
                 child.append(parent1[i])
             else:
                 child.append(parent2[i])
-        return child
+        self.individuals.append(Individual(self.total_population, child, -1, -1))
 
     def evaluate_unfitness(self, index):
         unfitness = 0
@@ -125,15 +125,50 @@ class GASolver:
                         unfitness += max(0, self.separation_times_matrix[i,j] - delta)
         self.individuals[index].unfitness = unfitness
 
+    def build_population_groups(self, reference_fitness, reference_unfitness):
+        g1 = []
+        g2 = []
+        g3 = []
+        g4 = []
+        for i in self.individuals:
+            if(i.unfitness >= reference_unfitness):
+                if (i.fitness <= reference_fitness):
+                    g1.append(i)
+                else:
+                    g2.append(i)
+            else:
+                if(i.fitness <= reference_fitness):
+                    g2.append(i)
+                else:
+                    g4.append(i)
+        return g1,g2,g3,g4
+
+    def population_replacement(self):
+        self.evaluate_fitness(self.total_population)
+        self.evaluate_unfitness(self.total_population)
+        child = self.individuals.pop(self.total_population)
+        group1, group2, group3, group4 = self.build_population_groups(child.fitness, child.unfitness)
+        if(len(group1) > 0):
+            selected_element = random.choice(group1)
+        elif(len(group2) >0):
+            selected_element = random.choice(group2)
+        elif (len(group3) > 0):
+            selected_element = random.choice(group3)
+        else:
+            selected_element = random.choice(group4)
+        child.index = selected_element.index
+        self.individuals[selected_element.index] = child
+
     def list(self):
         for i in self.individuals:
-            print(i.index)
-            print(i.genes)
-            print(i.fitness)
-            print(i.unfitness)
+            # print(i.index)
+            # print(i.genes)
+            # print(i.fitness)
+            # print(i.unfitness)
 
     def start(self, alp_instance: ALPInstance, max_iterations=10):
         self.__initialize(alp_instance)
         self.generate_initial_population()
         self.crossover()
-        #self.list()
+        self.population_replacement()
+        self.list()
