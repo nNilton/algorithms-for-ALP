@@ -15,4 +15,4 @@ aco_solver = GASolver(
         runaway_number=1,
         total_aircrafts=3,
         total_population=2)
-aco_solver.start(alp_intance=alp)
+aco_solver.start(alp_instance=alp)

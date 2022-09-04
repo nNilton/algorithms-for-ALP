@@ -104,6 +104,10 @@ class GASolver:
             else:
                 child.append(parent2[i])
         return child
+    def start(self, alp_instance: ALPInstance, max_iterations=10):
+        self.__initialize(alp_instance)
         print(self.global_aircraft_candidates)
         test = self.generate_initial_population()
-        self.evaluate_fitness(test)
+        self.evaluate_fitness(test, 0)
+        child = self.crossover(test)
+        print(alp_instance.separation_times_matrix[2])
