@@ -42,7 +42,7 @@ class GASolver:
 
         # Internal parameters
         self.global_aircraft_candidates = []
-        self.fitness = []
+        self.fitness = [-1] * total_population
         # self.global_runaway_list = []
 
     def __initialize(self, alp_instance: ALPInstance = None):
@@ -71,21 +71,39 @@ class GASolver:
         print(random_numbers)
         return random_numbers
 
-    def evaluate_fitness(self, individual,population):
+    def evaluate_fitness(self, population, position):
         fitness = 0
-        for i in range (individual,self.total_aircrafts):
+        for i in range (0,self.total_aircrafts):
             earliest_landing_time = self.global_aircraft_candidates[i].earliest_landing_time
             latest_landing_time = self.global_aircraft_candidates[i].latest_landing_time
-            scheduled_time = (earliest_landing_time + (population[individual,i] * (latest_landing_time - earliest_landing_time)))
+            scheduled_time = (earliest_landing_time + (population[position,i] * (latest_landing_time - earliest_landing_time)))
             deviation = scheduled_time - self.global_aircraft_candidates[i].target_landing_time
             if(deviation > 0):
                 fitness += deviation * deviation
             else:
                 fitness -= deviation * deviation
-        self.fitness[individual] = fitness
+        self.fitness[position] = fitness
 
-    def start(self, alp_intance: ALPInstance, max_iterations=10):
-        self.__initialize(alp_intance)
+    def binary_tournment(self, population):
+        rand1 = random.randrange(self.total_population)
+        rand2 = random.randrange(self.total_population)#this can return the same element twice fix this if it was necessary
+        if(self.fitness[rand1]>self.fitness[rand2]):
+            return population[rand1]
+        else:
+            return population[rand2]
+
+    def crossover(self, population):
+        parent1 = self.binary_tournment(population)
+        parent2 = self.binary_tournment(population)
+        print(parent1)
+        print(parent2)
+        child = []
+        for i in range(0, self.total_aircrafts):
+            if(random.randrange(2)==0):
+                child.append(parent1[i])
+            else:
+                child.append(parent2[i])
+        return child
         print(self.global_aircraft_candidates)
         test = self.generate_initial_population()
         self.evaluate_fitness(test)
