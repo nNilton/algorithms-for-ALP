@@ -9,10 +9,13 @@ path = 'E:\\Repositorios-Git\\algorithms-for-ALP\\algorithms_ALP\\src\\algorithm
 df = DataFrameHandler.read_csv_data(path)
 alp = ALPInstance(df)
 alp.build_ALP_instance()
-print(alp.aircraft_times)
 
 aco_solver = GASolver(
         runaway_number=1,
-        total_aircrafts=3,
-        total_population=2)
-aco_solver.start(alp_instance=alp)
+        total_aircrafts=100,
+        total_population=500)
+f = aco_solver.start(alp_instance=alp, max_iterations=1000000)
+print(f.genes)
+print(f.fitness)
+print(f.unfitness)
+print(f.index)
