@@ -19,7 +19,7 @@
 #  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #  SOFTWARE.
-
+import math
 import random
 import numpy
 
@@ -104,7 +104,24 @@ class GASolver:
                 child.append(parent1[i])
             else:
                 child.append(parent2[i])
-        self.individuals.append(Individual(self.total_population, child, -1, -1))
+        individual = Individual(self.total_population, child, -1, -1)
+        self.individuals.append(individual)
+        self.evaluate_unfitness(self.total_population)
+        self.mutation(individual)
+        self.evaluate_fitness(self.total_population)
+
+    def mutation(self, individual):
+        current_unfitness = individual.unfitness
+        if(current_unfitness > 60000):
+            current_unfitness = 60000
+        prob = math.sqrt(current_unfitness / 6)/100
+        rest = 1 - prob
+        result = numpy.random.choice(['a', 'b'], 1, p=[prob, rest])
+        if(result == 'a'):
+            individual.genes[random.randrange(self.total_aircrafts)] = numpy.random.uniform(low=0, high=1)
+            self.evaluate_fitness(individual.index)
+            self.evaluate_unfitness(individual.index)
+
 
     def evaluate_unfitness(self, index):
         unfitness = 0
