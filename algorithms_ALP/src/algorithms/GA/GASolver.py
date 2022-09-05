@@ -156,6 +156,15 @@ class GASolver:
         child.index = selected_element.index
         self.individuals[selected_element.index] = child
 
+    def find_best_solution(self):
+        candidate = Individual(-1, [-1], -1, 1)
+        for i in self.individuals:
+            if((i.fitness > candidate.fitness) and (i.unfitness < candidate.unfitness)):
+                candidate = i
+            else:
+                continue
+        return candidate
+
     def list(self):
         for i in self.individuals:
             # print(i.index)
