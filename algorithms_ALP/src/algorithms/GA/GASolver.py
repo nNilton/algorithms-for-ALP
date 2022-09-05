@@ -69,7 +69,6 @@ class GASolver:
     def generate_initial_population(self):
         for i in range(self.total_population):
             random_numbers = numpy.random.uniform(low=0, high=1, size=self.total_aircrafts)
-            print(random_numbers)
             self.individuals.append(Individual(i, random_numbers, -1, -1))
             self.evaluate_fitness(i)
             self.evaluate_unfitness(i)
@@ -144,8 +143,6 @@ class GASolver:
         return g1,g2,g3,g4
 
     def population_replacement(self):
-        self.evaluate_fitness(self.total_population)
-        self.evaluate_unfitness(self.total_population)
         child = self.individuals.pop(self.total_population)
         group1, group2, group3, group4 = self.build_population_groups(child.fitness, child.unfitness)
         if(len(group1) > 0):
