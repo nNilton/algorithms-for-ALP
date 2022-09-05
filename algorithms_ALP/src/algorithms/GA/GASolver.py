@@ -138,7 +138,7 @@ class GASolver:
                     g2.append(i)
             else:
                 if(i.fitness <= reference_fitness):
-                    g2.append(i)
+                    g3.append(i)
                 else:
                     g4.append(i)
         return g1,g2,g3,g4
