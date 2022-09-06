@@ -81,10 +81,10 @@ class GASolver:
             latest_landing_time = self.global_aircraft_candidates[i].latest_landing_time
             scheduled_time = (earliest_landing_time + (self.individuals[index].genes[i] * (latest_landing_time - earliest_landing_time)))
             deviation = scheduled_time - self.global_aircraft_candidates[i].target_landing_time
-            if(deviation > 0):
-                fitness += deviation * deviation
-            else:
+            if(deviation >= 0):
                 fitness -= deviation * deviation
+            else:
+                fitness += deviation * deviation
         self.individuals[index].fitness = fitness
 
     def binary_tournment(self):
