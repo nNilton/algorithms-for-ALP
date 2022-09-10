@@ -68,23 +68,37 @@ class GASolver:
 
     def generate_initial_population(self):
         for i in range(self.total_population):
-            random_numbers = numpy.random.uniform(low=0, high=1, size=self.total_aircrafts)
-            self.individuals.append(Individual(i, random_numbers, -1, -1))
+            #random_numbers = numpy.random.uniform(low=0, high=1, size=self.total_aircrafts)
+            random_numbers = numpy.random.randint(low=1, high=99, size=self.total_aircrafts)/100
+            print(random_numbers)
+            self.individuals.append(Individual(i, random_numbers, -1, -1, -1, -1))
             self.evaluate_fitness(i)
             self.evaluate_unfitness(i)
 
 
     def evaluate_fitness(self, index):
+        worst_index = -1
+        worst_value = -1
         fitness = 0
         for i in range (0,self.total_aircrafts):
             earliest_landing_time = self.global_aircraft_candidates[i].earliest_landing_time
             latest_landing_time = self.global_aircraft_candidates[i].latest_landing_time
-            scheduled_time = (earliest_landing_time + (self.individuals[index].genes[i] * (latest_landing_time - earliest_landing_time)))
+            scheduled_time = int(earliest_landing_time + (self.individuals[index].genes[i] * (latest_landing_time - earliest_landing_time)))
             deviation = scheduled_time - self.global_aircraft_candidates[i].target_landing_time
-            if(deviation >= 0):
-                fitness -= deviation * deviation
+            if(deviation > 0):
+                cost = deviation * self.global_aircraft_candidates[i].penality_cost_earliest
+                if (cost > worst_value):
+                    worst_index = i
+                    worst_value = cost
+                fitness += cost
             else:
-                fitness += deviation * deviation
+                cost = deviation * self.global_aircraft_candidates[i].penality_cost_latest * -1
+                if (cost > worst_value):
+                    worst_index = i
+                    worst_value = cost
+                fitness += cost
+        self.individuals[index].worst_chromosome_index = worst_index
+        self.individuals[index].worst_chromosome_value = worst_value
         self.individuals[index].fitness = fitness
 
     def binary_tournment(self):
@@ -96,11 +110,11 @@ class GASolver:
             return self.individuals[rand2].genes
         else:
             if(self.individuals[rand1].fitness>=self.individuals[rand2].fitness):
-                print(self.individuals[rand1].fitness)
-            return self.individuals[rand1].genes
-        else:
-                print(self.individuals[rand2].fitness)
-            return self.individuals[rand2].genes
+                #print(self.individuals[rand1].fitness)
+                return self.individuals[rand1].genes
+            else:
+                #print(self.individuals[rand2].fitness)
+                return self.individuals[rand2].genes
 
     def crossover(self):
         parent1 = self.binary_tournment()
@@ -111,21 +125,24 @@ class GASolver:
                 child.append(parent1[i])
             else:
                 child.append(parent2[i])
-        individual = Individual(self.total_population, child, -1, -1)
+        individual = Individual(self.total_population, child, -1, -1, -1, -1)
         self.individuals.append(individual)
+        self.evaluate_fitness(self.total_population)
         self.evaluate_unfitness(self.total_population)
         self.mutation(individual)
-        self.evaluate_fitness(self.total_population)
 
     def mutation(self, individual):
-        current_unfitness = individual.unfitness
-        if(current_unfitness > 60000):
-            current_unfitness = 60000
-        prob = math.sqrt(current_unfitness / 6)/100
+        current_fitness = individual.worst_chromosome_index
+        print("pior: ", individual.worst_chromosome_value)
+        print("total: ", individual.fitness)
+        #if(current_fitness > 60000):
+         #   current_fitness = 60000
+        prob = math.sqrt(individual.worst_chromosome_value / individual.fitness)
         rest = 1 - prob
         result = numpy.random.choice(['a', 'b'], 1, p=[prob, rest])
         if(result == 'a'):
-            individual.genes[random.randrange(self.total_aircrafts)] = numpy.random.uniform(low=0, high=1)
+            #individual.genes[random.randrange(self.total_aircrafts)] = numpy.random.uniform(low=0, high=1)
+            individual.genes[individual.worst_chromosome_index] = numpy.random.randint(low=1, high=99)/100
             self.evaluate_fitness(individual.index)
             self.evaluate_unfitness(individual.index)
 
@@ -137,15 +154,16 @@ class GASolver:
                 if(i != j):
                     earliest_landing_time = self.global_aircraft_candidates[i].earliest_landing_time
                     latest_landing_time = self.global_aircraft_candidates[i].latest_landing_time
-                    scheduled_time_i = (earliest_landing_time + (self.individuals[index].genes[i] * (latest_landing_time - earliest_landing_time)))
+                    scheduled_time_i = int(earliest_landing_time + (self.individuals[index].genes[i] * (latest_landing_time - earliest_landing_time)))
 
                     earliest_landing_time = self.global_aircraft_candidates[j].earliest_landing_time
                     latest_landing_time = self.global_aircraft_candidates[j].latest_landing_time
-                    scheduled_time_j = (earliest_landing_time + (self.individuals[index].genes[j] * (latest_landing_time - earliest_landing_time)))
+                    scheduled_time_j = int(earliest_landing_time + (self.individuals[index].genes[j] * (latest_landing_time - earliest_landing_time)))
 
                     if(scheduled_time_i <= scheduled_time_j):
                         delta = scheduled_time_j - scheduled_time_i
                         unfitness += max(0, self.separation_times_matrix[i,j] - delta)
+        #print(unfitness)
         self.individuals[index].unfitness = unfitness
 
     def build_population_groups(self, reference_fitness, reference_unfitness):
@@ -154,13 +172,13 @@ class GASolver:
         g3 = []
         g4 = []
         for i in self.individuals:
-            if(i.unfitness >= reference_unfitness):
-                if (i.fitness <= reference_fitness):
+            if(i.unfitness > reference_unfitness):
+                if (i.fitness < reference_fitness):
                     g1.append(i)
                 else:
                     g2.append(i)
             else:
-                if(i.fitness <= reference_fitness):
+                if(i.fitness > reference_fitness):
                     g3.append(i)
                 else:
                     g4.append(i)
@@ -181,24 +199,27 @@ class GASolver:
         self.individuals[selected_element.index] = child
 
     def find_best_solution(self):
-        candidate = Individual(-1, [-1], -1, 1)
+        candidate = Individual(-1, [-1], 9999999, 1, -1, -1)
         for i in self.individuals:
-            if((i.fitness > candidate.fitness) and (i.unfitness < candidate.unfitness)):
+            if((i.fitness < candidate.fitness) and (i.unfitness <= candidate.unfitness)):
                 candidate = i
             else:
                 continue
         return candidate
 
     def list(self):
+        print("-----------------------")
         for i in self.individuals:
-            # print(i.index)
-            # print(i.genes)
-            # print(i.fitness)
-            # print(i.unfitness)
+            print("Indice: ",i.index)
+            print(i.genes)
+            print("Custo: ", i.fitness)
+            print("Inviabilidade: ",i.unfitness)
 
     def start(self, alp_instance: ALPInstance, max_iterations=10):
         self.__initialize(alp_instance)
         self.generate_initial_population()
-        self.crossover()
-        self.population_replacement()
+        for i in range(0, max_iterations):
+            self.crossover()
+            self.population_replacement()
         self.list()
+        return self.find_best_solution()
