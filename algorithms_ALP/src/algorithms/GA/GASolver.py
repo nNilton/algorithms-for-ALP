@@ -27,6 +27,9 @@ from algorithms_ALP.src.algorithms.ACO.ALPInstance import ALPInstance
 from algorithms_ALP.src.algorithms.ACO.entity.Aircraft import Aircraft
 from algorithms_ALP.src.algorithms.GA.model.Individual import Individual
 
+
+def order(e):
+    return e.fitness + e.unfitness / 2
 class GASolver:
 
     def __init__(self, runaway_number, total_aircrafts, total_population):
@@ -121,19 +124,26 @@ class GASolver:
                 return self.individuals[rand2].genes
 
     def crossover(self):
-        parent1 = self.binary_tournment()
-        parent2 = self.binary_tournment()
-        child = []
-        for i in range(0, self.total_aircrafts):
-            if(random.randrange(2)==0):
-                child.append(parent1[i])
-            else:
-                child.append(parent2[i])
-        individual = Individual(self.total_population, child, -1, -1, -1, -1)
-        self.individuals.append(individual)
-        self.evaluate_fitness(self.total_population)
-        self.evaluate_unfitness(self.total_population)
-        self.mutation(individual)
+        new_population = []
+        alo = int(self.total_population/2)
+        print(alo)
+        for j in range(0, alo):
+            parent1 = self.binary_tournment()
+            parent2 = self.binary_tournment()
+            child = []
+            for i in range(0, self.total_aircrafts):
+                if(random.randrange(2)==0):
+                    child.append(parent1[i])
+                else:
+                    child.append(parent2[i])
+            individual = Individual(self.total_population, child, -1, -1, -1, -1)
+            self.individuals.append(individual)
+            self.evaluate_fitness(self.total_population)
+            self.evaluate_unfitness(self.total_population)
+            self.mutation(individual)
+            new_population.append(self.individuals.pop(self.total_population))
+        return new_population
+
 
     def mutation(self, individual):
         current_fitness = individual.worst_chromosome_index
@@ -214,6 +224,45 @@ class GASolver:
                 continue
         return candidate
 
+    def reindex(self):
+        for i in range(0 , self.total_population):
+            self.individuals[i].index = i
+
+
+    def evaluate_population(self):
+        self.individuals.sort(key=order)
+        self.reindex()
+
+    def generate_more_individuals(self):
+        new_population = []
+        test = []
+        teto = int(self.total_population/4)
+        for i in range(0, teto):
+            for j in range (0, self.total_aircrafts):
+                test.append(numpy.random.randint(low=self.global_aircraft_candidates[j].earliest_landing_time, high=self.global_aircraft_candidates[j].latest_landing_time))
+            self.individuals.append(Individual(self.total_population, test, -1, -1, -1, -1))
+            self.evaluate_fitness(self.total_population)
+            self.evaluate_unfitness(self.total_population)
+            new_population.append(self.individuals.pop(self.total_population))
+        return new_population
+
+    def substitute_individuals(self, childs, new):
+        self.evaluate_population()
+        c = 0
+        chao = int(self.total_population/4)
+        teto = int((self.total_population * 3)/4)
+        for i in range(chao, teto):
+            if(c == len(childs)):
+                break
+            self.individuals[i] = childs[c]
+            c+=1
+        c = 0
+        for i in range(teto, self.total_population):
+            if(c == len(new)):
+                break
+            self.individuals[i] = new[c]
+            c+=1
+
     def list(self):
         print("-----------------------")
         for i in self.individuals:
@@ -226,7 +275,10 @@ class GASolver:
         self.__initialize(alp_instance)
         self.generate_initial_population()
         for i in range(0, max_iterations):
-            self.crossover()
-            self.population_replacement()
+
+            childs = self.crossover()
+            new_ones = self.generate_more_individuals()
+            self.substitute_individuals(childs= childs, new=new_ones)
+            #self.population_replacement()
         self.list()
         return self.find_best_solution()
