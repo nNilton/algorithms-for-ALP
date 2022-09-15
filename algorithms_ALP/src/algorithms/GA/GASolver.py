@@ -108,12 +108,12 @@ class GASolver:
     def binary_tournment(self):
         rand1 = random.randrange(self.total_population)
         rand2 = random.randrange(self.total_population)#this can return the same element twice fix this if it was necessary
-        if(self.individuals[rand1].unfitness<self.individuals[rand2].unfitness):
+        if(self.individuals[rand1].fitness>self.individuals[rand2].fitness):
             return self.individuals[rand1].genes
-        elif(self.individuals[rand1].unfitness>self.individuals[rand2].unfitness):
+        elif(self.individuals[rand1].fitness<self.individuals[rand2].fitness):
             return self.individuals[rand2].genes
         else:
-            if(self.individuals[rand1].fitness>=self.individuals[rand2].fitness):
+            if(self.individuals[rand1].unfitness<=self.individuals[rand2].unfitness):
                 #print(self.individuals[rand1].fitness)
                 return self.individuals[rand1].genes
             else:
