@@ -47,7 +47,7 @@ class GASolver:
 
     def __initialize(self, alp_instance: ALPInstance = None):
         """
-        Initialize internal parameters of ACO.
+        Initialize internal parameters of GA.
         :param alp_instance:
         :return:
         """
@@ -68,8 +68,8 @@ class GASolver:
 
     def generate_initial_population(self):
         for i in range(self.total_population):
-            #random_numbers = numpy.random.uniform(low=0, high=1, size=self.total_aircrafts)
-            random_numbers = numpy.random.randint(low=1, high=99, size=self.total_aircrafts)/100
+            random_numbers = numpy.random.uniform(low=0, high=1, size=self.total_aircrafts)
+            #random_numbers = numpy.random.randint(low=1, high=99, size=self.total_aircrafts)/100
             print(random_numbers)
             self.individuals.append(Individual(i, random_numbers, -1, -1, -1, -1))
             self.evaluate_fitness(i)
@@ -133,18 +133,19 @@ class GASolver:
 
     def mutation(self, individual):
         current_fitness = individual.worst_chromosome_index
-        print("pior: ", individual.worst_chromosome_value)
-        print("total: ", individual.fitness)
-        #if(current_fitness > 60000):
-         #   current_fitness = 60000
-        prob = math.sqrt(individual.worst_chromosome_value / individual.fitness)
-        rest = 1 - prob
-        result = numpy.random.choice(['a', 'b'], 1, p=[prob, rest])
-        if(result == 'a'):
-            #individual.genes[random.randrange(self.total_aircrafts)] = numpy.random.uniform(low=0, high=1)
-            individual.genes[individual.worst_chromosome_index] = numpy.random.randint(low=1, high=99)/100
-            self.evaluate_fitness(individual.index)
-            self.evaluate_unfitness(individual.index)
+        if(individual.fitness != 0 ):
+            print("pior: ", individual.worst_chromosome_value)
+            print("total: ", individual.fitness)
+            #if(current_fitness > 60000):
+             #   current_fitness = 60000
+            prob = math.sqrt(individual.worst_chromosome_value / individual.fitness)
+            rest = 1 - prob
+            result = numpy.random.choice(['a', 'b'], 1, p=[prob, rest])
+            if(result == 'a'):
+                #individual.genes[random.randrange(self.total_aircrafts)] = numpy.random.uniform(low=0, high=1)
+                individual.genes[individual.worst_chromosome_index] = numpy.random.uniform(low=0, high=1)
+                self.evaluate_fitness(individual.index)
+                self.evaluate_unfitness(individual.index)
 
 
     def evaluate_unfitness(self, index):
