@@ -68,10 +68,13 @@ class GASolver:
 
     def generate_initial_population(self):
         for i in range(self.total_population):
-            random_numbers = numpy.random.uniform(low=0, high=1, size=self.total_aircrafts)
+            #random_numbers = numpy.random.uniform(low=0, high=1, size=self.total_aircrafts)
             #random_numbers = numpy.random.randint(low=1, high=99, size=self.total_aircrafts)/100
-            print(random_numbers)
-            self.individuals.append(Individual(i, random_numbers, -1, -1, -1, -1))
+            #print(random_numbers)
+            test = []
+            for j in range (0, self.total_aircrafts):
+                test.append(numpy.random.randint(low=self.global_aircraft_candidates[j].earliest_landing_time, high=self.global_aircraft_candidates[j].latest_landing_time))
+            self.individuals.append(Individual(i, test, -1, -1, -1, -1))
             self.evaluate_fitness(i)
             self.evaluate_unfitness(i)
 
@@ -81,9 +84,10 @@ class GASolver:
         worst_value = -1
         fitness = 0
         for i in range (0,self.total_aircrafts):
-            earliest_landing_time = self.global_aircraft_candidates[i].earliest_landing_time
-            latest_landing_time = self.global_aircraft_candidates[i].latest_landing_time
-            scheduled_time = int(earliest_landing_time + (self.individuals[index].genes[i] * (latest_landing_time - earliest_landing_time)))
+            #earliest_landing_time = self.global_aircraft_candidates[i].earliest_landing_time
+            #latest_landing_time = self.global_aircraft_candidates[i].latest_landing_time
+            #scheduled_time = int(earliest_landing_time + (self.individuals[index].genes[i] * (latest_landing_time - earliest_landing_time)))
+            scheduled_time = self.individuals[index].genes[i]
             deviation = scheduled_time - self.global_aircraft_candidates[i].target_landing_time
             if(deviation > 0):
                 cost = deviation * self.global_aircraft_candidates[i].penality_cost_earliest
@@ -143,7 +147,7 @@ class GASolver:
             result = numpy.random.choice(['a', 'b'], 1, p=[prob, rest])
             if(result == 'a'):
                 #individual.genes[random.randrange(self.total_aircrafts)] = numpy.random.uniform(low=0, high=1)
-                individual.genes[individual.worst_chromosome_index] = numpy.random.uniform(low=0, high=1)
+                individual.genes[individual.worst_chromosome_index] = numpy.random.uniform(numpy.random.randint(low=self.global_aircraft_candidates[current_fitness].earliest_landing_time, high=self.global_aircraft_candidates[current_fitness].latest_landing_time))
                 self.evaluate_fitness(individual.index)
                 self.evaluate_unfitness(individual.index)
 
@@ -153,13 +157,15 @@ class GASolver:
         for i in range(0, self.total_aircrafts):
             for j in range(0, self.total_aircrafts):
                 if(i != j):
-                    earliest_landing_time = self.global_aircraft_candidates[i].earliest_landing_time
-                    latest_landing_time = self.global_aircraft_candidates[i].latest_landing_time
-                    scheduled_time_i = int(earliest_landing_time + (self.individuals[index].genes[i] * (latest_landing_time - earliest_landing_time)))
+                    #earliest_landing_time = self.global_aircraft_candidates[i].earliest_landing_time
+                    #latest_landing_time = self.global_aircraft_candidates[i].latest_landing_time
+                    #scheduled_time_i = int(earliest_landing_time + (self.individuals[index].genes[i] * (latest_landing_time - earliest_landing_time)))
+                    scheduled_time_i = self.individuals[index].genes[i]
 
-                    earliest_landing_time = self.global_aircraft_candidates[j].earliest_landing_time
-                    latest_landing_time = self.global_aircraft_candidates[j].latest_landing_time
-                    scheduled_time_j = int(earliest_landing_time + (self.individuals[index].genes[j] * (latest_landing_time - earliest_landing_time)))
+                    #earliest_landing_time = self.global_aircraft_candidates[j].earliest_landing_time
+                    #latest_landing_time = self.global_aircraft_candidates[j].latest_landing_time
+                    #scheduled_time_j = int(earliest_landing_time + (self.individuals[index].genes[j] * (latest_landing_time - earliest_landing_time)))
+                    scheduled_time_j = self.individuals[index].genes[j]
 
                     if(scheduled_time_i <= scheduled_time_j):
                         delta = scheduled_time_j - scheduled_time_i
