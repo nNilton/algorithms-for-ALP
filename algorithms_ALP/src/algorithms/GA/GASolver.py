@@ -109,9 +109,9 @@ class GASolver:
         rand1 = random.randrange(self.total_population)
         rand2 = random.randrange(self.total_population)#this can return the same element twice fix this if it was necessary
         if(self.individuals[rand1].fitness>self.individuals[rand2].fitness):
-            return self.individuals[rand1].genes
-        elif(self.individuals[rand1].fitness<self.individuals[rand2].fitness):
             return self.individuals[rand2].genes
+        elif(self.individuals[rand1].fitness<self.individuals[rand2].fitness):
+            return self.individuals[rand1].genes
         else:
             if(self.individuals[rand1].unfitness<=self.individuals[rand2].unfitness):
                 #print(self.individuals[rand1].fitness)
@@ -147,7 +147,7 @@ class GASolver:
             result = numpy.random.choice(['a', 'b'], 1, p=[prob, rest])
             if(result == 'a'):
                 #individual.genes[random.randrange(self.total_aircrafts)] = numpy.random.uniform(low=0, high=1)
-                individual.genes[individual.worst_chromosome_index] = numpy.random.randint(numpy.random.randint(low=self.global_aircraft_candidates[current_fitness].earliest_landing_time, high=self.global_aircraft_candidates[current_fitness].latest_landing_time))
+                individual.genes[individual.worst_chromosome_index] = numpy.random.randint(low=self.global_aircraft_candidates[current_fitness].earliest_landing_time, high=self.global_aircraft_candidates[current_fitness].latest_landing_time)
                 self.evaluate_fitness(individual.index)
                 self.evaluate_unfitness(individual.index)
 
