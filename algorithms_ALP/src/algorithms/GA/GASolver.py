@@ -125,8 +125,11 @@ class GASolver:
         parent2 = self.binary_tournment()
         child = []
         if(parent1 == parent2):
-            for j in range (0, self.total_aircrafts):
-                child.append(numpy.random.randint(low=self.global_aircraft_candidates[j].earliest_landing_time, high=self.global_aircraft_candidates[j].latest_landing_time))
+            child = parent1
+            qtd = numpy.random.randint(low=0, high=self.total_aircrafts)
+            for i in range(0, qtd):
+                index = numpy.random.randint(low=0, high=self.total_aircrafts -1) 
+                child[index] -= 1
         else:
             for i in range(0, self.total_aircrafts):
                 if(random.randrange(2)==0):
