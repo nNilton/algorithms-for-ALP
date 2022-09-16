@@ -26,7 +26,7 @@ import numpy
 
 class Individual:
 
-    def __init__(self, index, genes, fitness, unfitness, worst_chromossome_index, worst_chromossome_value):
+    def __init__(self, index, genes, fitness, unfitness, worst_chromossome_index, worst_chromossome_value, cost):
         """
         :param appearance_time:
         :param earliest_landing_time:
@@ -39,6 +39,7 @@ class Individual:
         self.genes = genes
         self.fitness = fitness
         self.unfitness = unfitness
+        self.cost = cost
         self.worst_chromosome_index = worst_chromossome_index
         self.worst_chromosome_value = worst_chromossome_value
 
